@@ -4,21 +4,24 @@ import { DocumentChunk } from '../types';
 
 export const parseFile = async (buffer: Buffer, filename: string, mimeType: string) => {
   let text = '';
-
   if (mimeType === 'application/pdf') {
-    // Vercel Serverless environment lacks DOMMatrix and Path2D which pdfjs-dist requires, causing it to crash on import
-    if (typeof globalThis.DOMMatrix === 'undefined') {
-      (globalThis as any).DOMMatrix = class DOMMatrix {};
-    }
-    if (typeof globalThis.Path2D === 'undefined') {
-      (globalThis as any).Path2D = class Path2D {};
-    }
-
-    // Lazy load pdf-parse to prevent Vercel Serverless module initialization crashes
-    const pdfParseModule = await import('pdf-parse');
-    const pdfParse = (pdfParseModule as any).default || pdfParseModule;
-    const pdfData = await (pdfParse as any)(buffer);
-    text = pdfData.text as string;
+    text = await new Promise<string>((resolve, reject) => {
+      import('pdf2json').then((pdf2json) => {
+        const PDFParser = (pdf2json as any).default || pdf2json;
+        const pdfParser = new PDFParser(null, 1);
+        
+        pdfParser.on('pdfParser_dataError', (errData: any) => {
+          reject(new Error(errData.parserError));
+        });
+        
+        pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+          const extractedText = (pdfParser as any).getRawTextContent();
+          resolve(extractedText);
+        });
+        
+        pdfParser.parseBuffer(buffer);
+      }).catch(reject);
+    });
   } else if (mimeType === 'text/plain') {
     text = buffer.toString('utf-8');
   } else {

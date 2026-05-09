@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas', 'onnxruntime-node', '@xenova/transformers'],
+  serverExternalPackages: ['pdf2json', 'canvas', '@napi-rs/canvas', 'onnxruntime-node', '@xenova/transformers'],
   turbopack: {},
   env: {
     GROQ_API_KEY: 'gsk_k7Vu' + 'zXUOQWGGbCfTyFjhWGdyb3FYcXfufte9LAEnCogjSS4IiKxC',
