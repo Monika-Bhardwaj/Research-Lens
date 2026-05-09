@@ -1,18 +1,15 @@
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-import { createRequire } from 'module';
 import { v4 as uuidv4 } from 'uuid';
 import { DocumentChunk } from '../types';
-
-// pdf-parse is CommonJS-only; use createRequire to import it safely in ESM/Next.js App Router
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require('pdf-parse');
 
 export const parseFile = async (buffer: Buffer, filename: string, mimeType: string) => {
   let text = '';
 
   if (mimeType === 'application/pdf') {
-    const pdfData = await pdfParse(buffer);
+    // Lazy load pdf-parse to prevent Vercel Serverless module initialization crashes
+    const pdfParseModule = await import('pdf-parse');
+    const pdfParse = (pdfParseModule as any).default || pdfParseModule;
+    const pdfData = await (pdfParse as any)(buffer);
     text = pdfData.text as string;
   } else if (mimeType === 'text/plain') {
     text = buffer.toString('utf-8');

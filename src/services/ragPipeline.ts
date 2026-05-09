@@ -1,4 +1,4 @@
-import { COLLECTION_NAME, ensureCollection, qdrantClient } from '../lib/qdrant';
+import { COLLECTION_NAME, ensureCollection, getQdrantClient } from '../lib/qdrant';
 import { getEmbeddings } from '../lib/embeddings';
 import { DocumentChunk } from '../types';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,7 +23,8 @@ export const indexDocument = async (chunks: DocumentChunk[]) => {
   }));
 
   // Upload to Qdrant
-  await qdrantClient.upsert(COLLECTION_NAME, {
+  const client = getQdrantClient();
+  await client.upsert(COLLECTION_NAME, {
     wait: true,
     points,
   });
@@ -33,7 +34,8 @@ export const retrieveRelevantChunks = async (query: string, documentId: string, 
   const embeddings = getEmbeddings();
   const vector = await embeddings.embedQuery(query);
   
-  const searchResults = await qdrantClient.search(COLLECTION_NAME, {
+  const client = getQdrantClient();
+  const searchResults = await client.search(COLLECTION_NAME, {
     vector,
     limit: topK,
     filter: {
