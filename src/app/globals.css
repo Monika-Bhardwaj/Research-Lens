@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Use a premium system font stack - no external network calls needed */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+
 @layer base {
   * {
     border-color: theme(colors.neutral.800);

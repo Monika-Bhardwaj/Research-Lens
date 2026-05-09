@@ -16,7 +16,7 @@ const getQdrantClient = () => {
 };
 
 export const qdrantClient = getQdrantClient();
-export const COLLECTION_NAME = 'research_lens_documents';
+export const COLLECTION_NAME = 'research_lens_docs_v2';
 
 export const ensureCollection = async () => {
   try {
@@ -26,7 +26,7 @@ export const ensureCollection = async () => {
     if (!exists) {
       await qdrantClient.createCollection(COLLECTION_NAME, {
         vectors: {
-          size: 768, // nomic-embed-text size
+          size: 384, // sentence-transformers/all-MiniLM-L6-v2
           distance: 'Cosine',
         },
       });
