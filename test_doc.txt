@@ -1,0 +1,11 @@
+This is a test document about artificial intelligence and machine learning.
+
+Artificial intelligence (AI) is the simulation of human intelligence processes by machines, especially computer systems. Machine learning is a subset of AI that enables systems to learn and improve from experience without being explicitly programmed.
+
+Key concepts:
+- Neural networks mimic the human brain
+- Deep learning uses multiple layers of neural networks
+- Natural language processing helps computers understand human language
+- Computer vision allows machines to interpret visual information
+
+The future of AI looks promising with applications in healthcare, finance, education, and transportation.

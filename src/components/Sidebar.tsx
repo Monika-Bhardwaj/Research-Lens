@@ -42,12 +42,22 @@ export default function Sidebar() {
         body: formData,
       });
 
-      if (!res.ok) throw new Error('Upload failed');
+      if (!res.ok) {
+        let errorMsg = 'Upload failed';
+        try {
+          const errorData = await res.json();
+          if (errorData.error) errorMsg = errorData.error;
+        } catch (e) {
+          // ignore JSON parse error
+        }
+        throw new Error(errorMsg);
+      }
       
       updateDocumentStatus(docId, 'ready', 100);
       setActiveDocument(docId);
     } catch (error) {
       console.error(error);
+      alert(error instanceof Error ? error.message : 'Unknown error occurred during upload');
       updateDocumentStatus(docId, 'error', 0);
     } finally {
       setIsUploading(false);
