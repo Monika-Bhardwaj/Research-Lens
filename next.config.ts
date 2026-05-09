@@ -1,16 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas'],
+  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas', 'onnxruntime-node', '@xenova/transformers'],
   turbopack: {},
-  webpack: (config, { isServer }) => {
-    // Completely disable onnxruntime-node bundling to prevent Vercel 500 crashes
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'onnxruntime-node$': false,
-    };
-    return config;
-  },
   env: {
     GROQ_API_KEY: 'gsk_k7Vu' + 'zXUOQWGGbCfTyFjhWGdyb3FYcXfufte9LAEnCogjSS4IiKxC',
     QDRANT_URL: 'https://b7f75489-1cc0-42a4-a5f2-ae4f18a9c7b8.eu-west-1-0.aws.cloud.qdrant.io',

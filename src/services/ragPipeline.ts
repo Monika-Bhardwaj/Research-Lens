@@ -9,26 +9,8 @@ export const indexDocument = async (chunks: DocumentChunk[]) => {
   const embeddings = getEmbeddings();
   const texts = chunks.map(c => c.text);
   
-  let vectors: number[][] = [];
-
-  if (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === 'production') {
-    // Call the Edge API route for embeddings (which uses Xenova/WASM)
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/embed`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texts })
-    });
-    if (!res.ok) {
-      throw new Error(`Edge Embeddings API failed: ${await res.text()}`);
-    }
-    const data = await res.json();
-    vectors = data.embeddings;
-  } else {
-    // Local dev fallback
-    const embeddings = getEmbeddings();
-    vectors = await embeddings.embedDocuments(texts);
-  }
+  // Create embeddings natively
+  const vectors = await embeddings.embedDocuments(texts);
   
   // Prepare points for Qdrant
   const points = chunks.map((chunk, i) => ({
@@ -49,24 +31,8 @@ export const indexDocument = async (chunks: DocumentChunk[]) => {
 };
 
 export const retrieveRelevantChunks = async (query: string, documentId: string, topK = 5) => {
-  let vector: number[];
-
-  if (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === 'production') {
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/embed`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ texts: [query] })
-    });
-    if (!res.ok) {
-      throw new Error(`Edge Embeddings API failed: ${await res.text()}`);
-    }
-    const data = await res.json();
-    vector = data.embeddings[0];
-  } else {
-    const embeddings = getEmbeddings();
-    vector = await embeddings.embedQuery(query);
-  }
+  const embeddings = getEmbeddings();
+  const vector = await embeddings.embedQuery(query);
   
   const client = getQdrantClient();
   const searchResults = await client.search(COLLECTION_NAME, {
