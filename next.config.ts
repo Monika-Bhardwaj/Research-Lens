@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas'],
+  serverExternalPackages: ['pdf-parse', 'canvas', '@napi-rs/canvas', 'onnxruntime-node', 'sharp'],
   turbopack: {
     root: __dirname,
   },

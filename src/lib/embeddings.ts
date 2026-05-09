@@ -1,8 +1,11 @@
 import { OllamaEmbeddings } from '@langchain/ollama';
 import { pipeline, env } from '@xenova/transformers';
 
-// Configure transformers.js to not use local cache in Vercel to avoid read-only FS errors
+// Configure transformers.js for Vercel serverless (read-only FS)
 env.allowLocalModels = false;
+if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+  env.cacheDir = '/tmp';
+}
 
 let extractor: any = null;
 

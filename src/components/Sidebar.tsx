@@ -43,12 +43,17 @@ export default function Sidebar() {
       });
 
       if (!res.ok) {
-        let errorMsg = 'Upload failed';
+        let errorMsg = `Upload failed (${res.status} ${res.statusText})`;
         try {
-          const errorData = await res.json();
-          if (errorData.error) errorMsg = errorData.error;
+          const text = await res.text();
+          try {
+            const errorData = JSON.parse(text);
+            if (errorData.error) errorMsg = errorData.error;
+          } catch (e) {
+            errorMsg = `Server error ${res.status}. Check Vercel logs. (Snippet: ${text.slice(0, 50)})`;
+          }
         } catch (e) {
-          // ignore JSON parse error
+          // ignore
         }
         throw new Error(errorMsg);
       }
