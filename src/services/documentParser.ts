@@ -6,6 +6,14 @@ export const parseFile = async (buffer: Buffer, filename: string, mimeType: stri
   let text = '';
 
   if (mimeType === 'application/pdf') {
+    // Vercel Serverless environment lacks DOMMatrix and Path2D which pdfjs-dist requires, causing it to crash on import
+    if (typeof globalThis.DOMMatrix === 'undefined') {
+      (globalThis as any).DOMMatrix = class DOMMatrix {};
+    }
+    if (typeof globalThis.Path2D === 'undefined') {
+      (globalThis as any).Path2D = class Path2D {};
+    }
+
     // Lazy load pdf-parse to prevent Vercel Serverless module initialization crashes
     const pdfParseModule = await import('pdf-parse');
     const pdfParse = (pdfParseModule as any).default || pdfParseModule;
