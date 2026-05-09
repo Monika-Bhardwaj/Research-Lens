@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  webpack: (config) => {
+    // Ignore onnxruntime-node to prevent Vercel Serverless crashes
+    // This forces @xenova/transformers to use WebAssembly entirely
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'onnxruntime-node$': false,
+    };
+    return config;
+  },
   env: {
     GROQ_API_KEY: 'gsk_k7Vu' + 'zXUOQWGGbCfTyFjhWGdyb3FYcXfufte9LAEnCogjSS4IiKxC',
     QDRANT_URL: 'https://b7f75489-1cc0-42a4-a5f2-ae4f18a9c7b8.eu-west-1-0.aws.cloud.qdrant.io',
