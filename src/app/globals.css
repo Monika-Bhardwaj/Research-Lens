@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    border-color: theme(colors.neutral.800);
+  }
+  body {
+    @apply bg-neutral-950 text-neutral-50;
+  }
+}
+
+.glass-panel {
+  @apply bg-neutral-900/60 backdrop-blur-xl border border-neutral-800/50 shadow-xl;
+}
