@@ -1,26 +1,45 @@
 import { OllamaEmbeddings } from '@langchain/ollama';
-import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
+import { pipeline, env } from '@xenova/transformers';
+
+// Configure transformers.js to not use local cache in Vercel to avoid read-only FS errors
+env.allowLocalModels = false;
+
+let extractor: any = null;
+
+class XenovaEmbeddings {
+  async embedDocuments(texts: string[]): Promise<number[][]> {
+    if (!extractor) {
+      extractor = await pipeline('feature-extraction', 'Xenova/nomic-embed-text-v1', {
+        quantized: true,
+      });
+    }
+    const embeddings = [];
+    for (const text of texts) {
+      const res = await extractor(text, { pooling: 'mean', normalize: true });
+      embeddings.push(Array.from(res.data) as number[]);
+    }
+    return embeddings;
+  }
+
+  async embedQuery(text: string): Promise<number[]> {
+    if (!extractor) {
+      extractor = await pipeline('feature-extraction', 'Xenova/nomic-embed-text-v1', {
+        quantized: true,
+      });
+    }
+    const res = await extractor(text, { pooling: 'mean', normalize: true });
+    return Array.from(res.data) as number[];
+  }
+}
 
 /**
  * Returns the appropriate embeddings provider:
- * - HuggingFace Inference API (cloud, free) when HUGGINGFACEHUB_API_TOKEN is set → production
- * - Ollama local when only OLLAMA_BASE_URL is set → local dev
- *
- * Both use `nomic-embed-text` → 768-dim vectors, fully compatible with Qdrant collection.
+ * - Xenova (transformers.js) in production (Vercel) -> zero config, free, 768-dim
+ * - Ollama local when not in Vercel
  */
 export const getEmbeddings = () => {
-  const hfToken = process.env.HUGGINGFACEHUB_API_TOKEN;
-
-  if (hfToken) {
-    return new HuggingFaceInferenceEmbeddings({
-      apiKey: hfToken,
-      model: 'nomic-ai/nomic-embed-text-v1',
-    });
-  }
-
-  // Prevent Vercel from trying to hit localhost Ollama
   if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-    throw new Error('HUGGINGFACEHUB_API_TOKEN is not set in Vercel. Please add it to your Environment Variables in the Vercel Dashboard to enable embeddings.');
+    return new XenovaEmbeddings();
   }
 
   // Local dev fallback: Ollama
@@ -30,5 +49,4 @@ export const getEmbeddings = () => {
   });
 };
 
-/** Vector dimension for nomic-embed-text (used when creating Qdrant collection) */
 export const EMBEDDING_DIMENSION = 768;
