@@ -14,6 +14,11 @@
 
 **Upload any PDF or TXT → Ask questions → Get grounded AI answers with source citations**
 
+[![Vercel Deploy](https://img.shields.io/badge/Vercel-Live-black?logo=vercel)](https://research-lens-roan.vercel.app)
+[![Render Deploy](https://img.shields.io/badge/Render-Live-46E3B7?logo=render)](https://research-lensresearch-lens.onrender.com)
+
+[🚀 Vercel Live Demo](https://research-lens-roan.vercel.app) · [🌐 Render Live Demo](https://research-lensresearch-lens.onrender.com) · [📖 API Docs](#api-reference) · [🛠️ Setup](#-quick-start)
+
 </div>
 
 ---
