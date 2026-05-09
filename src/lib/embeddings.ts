@@ -1,29 +1,26 @@
 import { OllamaEmbeddings } from '@langchain/ollama';
 import { HuggingFaceInferenceEmbeddings } from '@langchain/community/embeddings/hf';
 
-/**
- * Returns the appropriate embeddings provider:
- * - HuggingFace Inference API (cloud, free) when HUGGINGFACEHUB_API_TOKEN is set → production
- * - Ollama local when only OLLAMA_BASE_URL is set → local dev
- *
- * Both use `nomic-embed-text` → 768-dim vectors, fully compatible with Qdrant collection.
- */
-export const getEmbeddings = () => {
-  const hfToken = process.env.HUGGINGFACEHUB_API_TOKEN;
+const isRealHfToken = () => {
+  const t = process.env.HUGGINGFACEHUB_API_TOKEN;
+  return t && t !== 'your_hf_token_here';
+};
 
-  if (hfToken) {
+/**
+ * Cloud (HF): sentence-transformers/all-MiniLM-L6-v2 → 384-dim (free, always available)
+ * Local (Ollama): nomic-embed-text → 768-dim
+ */
+export const EMBEDDING_DIMENSION = isRealHfToken() ? 384 : 768;
+
+export const getEmbeddings = () => {
+  if (isRealHfToken()) {
     return new HuggingFaceInferenceEmbeddings({
-      apiKey: hfToken,
-      model: 'nomic-ai/nomic-embed-text-v1',
+      apiKey: process.env.HUGGINGFACEHUB_API_TOKEN!,
+      model: 'sentence-transformers/all-MiniLM-L6-v2',
     });
   }
-
-  // Local dev fallback: Ollama
   return new OllamaEmbeddings({
     model: 'nomic-embed-text',
     baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
   });
 };
-
-/** Vector dimension for nomic-embed-text (used when creating Qdrant collection) */
-export const EMBEDDING_DIMENSION = 768;
