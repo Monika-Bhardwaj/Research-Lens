@@ -3,6 +3,10 @@ import { pipeline, env } from '@xenova/transformers';
 
 // Configure transformers.js for Vercel serverless (read-only FS)
 env.allowLocalModels = false;
+env.backends.onnx.wasm.numThreads = 1;
+// Force it to use WASM instead of the Node native backend which crashes on Vercel
+env.backends.onnx.node = false;
+
 if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
   env.cacheDir = '/tmp';
 }
