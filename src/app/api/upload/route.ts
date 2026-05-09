@@ -14,8 +14,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const mime = file.type || (file.name.toLowerCase().endsWith('.txt') ? 'text/plain' : file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : '');
+
+    // Validate file type – allow empty mime only if we could infer a supported type
+    if (mime && !ALLOWED_TYPES.includes(mime)) {
       return NextResponse.json(
         { error: 'Unsupported file type. Only PDF and TXT files are allowed.' },
         { status: 400 }
@@ -34,8 +36,8 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 1. Parse File
-    const { text, filename } = await parseFile(buffer, file.name, file.type);
+    // 1. Parse File (use inferred mime)
+    const { text, filename } = await parseFile(buffer, file.name, mime);
 
     if (!text.trim()) {
       return NextResponse.json({ error: 'Document appears to be empty or unreadable.' }, { status: 400 });
