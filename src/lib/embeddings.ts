@@ -5,11 +5,31 @@ let _xenovaEmbeddings: any = null;
 class LazyXenovaEmbeddings {
   async getExtractor() {
     // 100% Lazy Loaded to prevent Vercel boot crashes
+    
+    // GENIUS HACK: Intercept Node.js require to physically block onnxruntime-node from executing.
+    // Turbopack ignores Webpack aliases, so transformers.js still tries to require the native C++ binary.
+    // By mocking it at the OS level, we completely eradicate the "missing .so" Vercel error.
+    if (typeof process !== 'undefined' && typeof require !== 'undefined') {
+      const Module = require('module');
+      if (!Module._originalRequireHooked) {
+        const originalRequire = Module.prototype.require;
+        Module.prototype.require = function(request: string) {
+          if (request === 'onnxruntime-node') {
+            return {}; // Mock it out!
+          }
+          return originalRequire.apply(this, arguments);
+        };
+        Module._originalRequireHooked = true;
+      }
+    }
+
     const xenova = await import('@xenova/transformers');
+    
     if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
       xenova.env.allowLocalModels = false;
       xenova.env.backends.onnx.node = false; // Disable Native bindings completely
       xenova.env.backends.onnx.wasm.numThreads = 1;
+      xenova.env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/';
       xenova.env.cacheDir = '/tmp'; // Vercel read-only bypass
     }
     return await xenova.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {
