@@ -20,7 +20,7 @@ export const getQdrantClient = () => {
   return _qdrantClient;
 };
 
-export const COLLECTION_NAME = 'research_lens_docs_v3';
+export const COLLECTION_NAME = 'research_lens_vector_store_v1';
 
 export const ensureCollection = async () => {
   try {
