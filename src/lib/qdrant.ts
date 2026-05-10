@@ -20,7 +20,7 @@ export const getQdrantClient = () => {
   return _qdrantClient;
 };
 
-export const COLLECTION_NAME = 'research_lens_vector_store_v1';
+export const COLLECTION_NAME = 'research_lens_final_prod_v1';
 
 export const ensureCollection = async () => {
   try {
@@ -34,6 +34,13 @@ export const ensureCollection = async () => {
           size: 384, // sentence-transformers/all-MiniLM-L6-v2
           distance: 'Cosine',
         },
+      });
+      
+      // Create payload index for fast and reliable filtering
+      await client.createPayloadIndex(COLLECTION_NAME, {
+        field_name: 'doc_id',
+        field_schema: 'keyword',
+        wait: true,
       });
     }
   } catch (error) {
