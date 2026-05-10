@@ -7,6 +7,9 @@ class LazyXenovaEmbeddings {
     // 100% Lazy Loaded to prevent Vercel boot crashes
     const xenova = await import('@xenova/transformers');
     if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      xenova.env.allowLocalModels = false;
+      xenova.env.backends.onnx.node = false; // Disable Native bindings completely
+      xenova.env.backends.onnx.wasm.numThreads = 1;
       xenova.env.cacheDir = '/tmp'; // Vercel read-only bypass
     }
     return await xenova.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', {

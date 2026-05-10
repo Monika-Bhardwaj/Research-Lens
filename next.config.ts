@@ -1,8 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['pdf2json', 'canvas', '@napi-rs/canvas', 'onnxruntime-node', '@xenova/transformers'],
+  serverExternalPackages: ['pdf2json'],
   turbopack: {},
+  webpack: (config, { isServer }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'onnxruntime-node$': false,
+    };
+    return config;
+  },
   env: {
     GROQ_API_KEY: 'gsk_k7Vu' + 'zXUOQWGGbCfTyFjhWGdyb3FYcXfufte9LAEnCogjSS4IiKxC',
     QDRANT_URL: 'https://b7f75489-1cc0-42a4-a5f2-ae4f18a9c7b8.eu-west-1-0.aws.cloud.qdrant.io',
