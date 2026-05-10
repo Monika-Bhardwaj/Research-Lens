@@ -19,6 +19,7 @@ export const indexDocument = async (chunks: DocumentChunk[]) => {
     payload: {
       text: chunk.text,
       metadata: chunk.metadata,
+      filename: chunk.metadata.filename, // Top-level for easier filtering
     }
   }));
 
@@ -41,7 +42,7 @@ export const retrieveRelevantChunks = async (query: string, documentId: string, 
     filter: {
       must: [
         {
-          key: 'metadata.filename', // Assuming filename represents documentId for now
+          key: 'filename', 
           match: {
             value: documentId
           }
