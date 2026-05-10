@@ -39,6 +39,16 @@ export const retrieveRelevantChunks = async (query: string, documentId: string, 
   const searchResults = await client.search(COLLECTION_NAME, {
     vector,
     limit: topK,
+    filter: {
+      must: [
+        {
+          key: 'filename',
+          match: {
+            value: documentId
+          }
+        }
+      ]
+    },
     with_payload: true,
   });
 

@@ -43,7 +43,6 @@ class LazyXenovaEmbeddings {
     for (const text of texts) {
       const res = await extractor(text, { pooling: 'mean', normalize: true });
       const vec = Array.from(res.data) as number[];
-      console.log('Generated vector dim:', vec.length);
       embeddings.push(vec);
     }
     return embeddings;
@@ -53,7 +52,6 @@ class LazyXenovaEmbeddings {
     const extractor = await this.getExtractor();
     const res = await extractor(text, { pooling: 'mean', normalize: true });
     const vec = Array.from(res.data) as number[];
-    console.log('Generated query vector dim:', vec.length);
     return vec;
   }
 }

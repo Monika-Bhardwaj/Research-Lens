@@ -17,9 +17,7 @@ export async function POST(req: NextRequest) {
     // We will just use the original query but retrieve a bit more, then slice.
     
     // 1. Retrieve chunks
-    console.log('Retrieving chunks for doc:', documentId);
     const chunks = await retrieveRelevantChunks(message, documentId, 3);
-    console.log('Found chunks:', chunks.length);
 
     if (chunks.length === 0) {
       return new Response(
@@ -99,10 +97,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Chat Error:', error);
-    return new Response(JSON.stringify({ 
-      error: error.message || 'Failed to process chat', 
-      details: error.toString(),
-      stack: error.stack 
-    }), { status: 500 });
+    return new Response(JSON.stringify({ error: 'Failed to process chat' }), { status: 500 });
   }
 }
