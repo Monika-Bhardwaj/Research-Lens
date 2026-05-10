@@ -38,5 +38,6 @@ export const ensureCollection = async () => {
     }
   } catch (error) {
     console.error('Error ensuring Qdrant collection:', error);
+    throw error; // Don't fail silently
   }
 };
